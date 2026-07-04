@@ -1,23 +1,17 @@
 {
-  "name": "complete aws bedrock course",
-  "version": "0.1.0",
-  "scripts": {
-    "build": "tsc",
-    "watch": "tsc -w",
-    "test": "jest",
-    "cdk": "cdk"
+  "name": "complete-aws-bedrock-course",
+  "version": "1.0.0",
+  "license": "MIT",
+  "dependencies": {
+    "serverless": "3.38.0",
+    "serverless-python-requirements": "^6.1.2"
   },
   "devDependencies": {
-    "@types/jest": "^30",
-    "@types/node": "^24.10.1",
-    "jest": "^30",
-    "ts-jest": "^29",
-    "aws-cdk": "2.1129.0",
-    "ts-node": "^10.9.2",
-    "typescript": "~5.9.3"
+    "cross-env": "^7.0.3"
   },
-  "dependencies": {
-    "aws-cdk-lib": "^2.260.0",
-    "constructs": "^10.5.0"
+  "scripts": {
+    "deploy": "cross-env DOCKER_DEFAULT_PLATFORM=linux/amd64 npx serverless deploy",
+    "package": "cross-env DOCKER_DEFAULT_PLATFORM=linux/amd64 npx serverless package",
+    "pip": "uv pip compile pyproject.toml -o requirements.txt"
   }
 }
