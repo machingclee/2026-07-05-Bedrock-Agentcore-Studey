@@ -1,11 +1,4 @@
-.env
-.venv/
 __pycache__/
-*.pyc
-.serverless/
-node_modules/
+.venv/
 .DS_Store
-*.egg-info/
-dist/
-build/
-.python-version
+*.log

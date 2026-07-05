@@ -1,0 +1,17 @@
+{
+  "targets": {
+    "default": {
+      "resources": {
+        "runtimes": {
+          "MyRestaurantAgent": {
+            "runtimeId": "RestaurantAgent_MyRestaurantAgent-dqQ1m6Bgn4",
+            "runtimeArn": "arn:aws:bedrock-agentcore:us-east-1:562976154517:runtime/RestaurantAgent_MyRestaurantAgent-dqQ1m6Bgn4",
+            "roleArn": "arn:aws:iam::562976154517:role/AgentCore-RestaurantAgent-ApplicationAgentMyRestaur-JxGCHd39aJzM"
+          }
+        },
+        "stackName": "AgentCore-RestaurantAgent-default",
+        "deployHash": "9c42c83fe41eb156"
+      }
+    }
+  }
+}
