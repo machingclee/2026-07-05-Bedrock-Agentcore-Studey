@@ -20,6 +20,7 @@ IMPORTANT RULES:
 
 restaurant_agent = Agent(
     name="restaurant_agent",
+    model="deepseek.v3.2",
     description=(
         "Find restaurants for a user. Handles determining city and fine-dining preference. "
         "Use this agent whenever the user asks for restaurant recommendations, "
