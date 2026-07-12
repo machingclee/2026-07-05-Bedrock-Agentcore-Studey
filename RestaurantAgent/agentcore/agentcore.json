@@ -26,7 +26,28 @@
       }
     }
   ],
-  "memories": [],
+  "memories": [
+    {
+      "name": "RestaurantMemory",
+      "eventExpiryDuration": 90,
+      "strategies": [
+        {
+          "type": "SEMANTIC",
+          "name": "user_facts",
+          "namespaceTemplates": [
+            "/strategies/{memoryStrategyId}/actors/{actorId}/"
+          ]
+        },
+        {
+          "type": "SUMMARIZATION",
+          "name": "conversation_summaries",
+          "namespaceTemplates": [
+            "/strategies/{memoryStrategyId}/actors/{actorId}/sessions/{sessionId}/"
+          ]
+        }
+      ]
+    }
+  ],
   "knowledgeBases": [],
   "credentials": [],
   "evaluators": [],

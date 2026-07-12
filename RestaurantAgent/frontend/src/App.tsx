@@ -4,7 +4,12 @@ import { useEffect, useState } from 'react';
 import './config/amplify';
 import { BOT_USERNAME, BOT_PASSWORD } from './config/amplify';
 import ChatInterface from './components/ChatInterface';
+import CopilotChatInterface from './components/CopilotChatInterface';
 import './App.css';
+
+// Set to 'copilotkit' to use the CopilotKit-powered chat instead of the custom one
+type ChatMode = 'custom' | 'copilotkit';
+const CHAT_MODE: ChatMode = (import.meta.env.VITE_CHAT_MODE as ChatMode) || 'custom';
 
 type AuthState = 'loading' | 'authenticated' | 'error';
 
@@ -83,7 +88,7 @@ export default function App() {
         </div>
       </header>
       <main className="app-main">
-        <ChatInterface />
+        {CHAT_MODE === 'copilotkit' ? <CopilotChatInterface /> : <ChatInterface />}
       </main>
     </div>
   );

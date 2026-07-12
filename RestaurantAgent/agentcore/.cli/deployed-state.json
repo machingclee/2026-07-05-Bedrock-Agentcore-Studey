@@ -9,8 +9,14 @@
             "roleArn": "arn:aws:iam::562976154517:role/AgentCore-RestaurantAgent-ApplicationAgentMyRestaur-JxGCHd39aJzM"
           }
         },
+        "memories": {
+          "RestaurantMemory": {
+            "memoryId": "RestaurantAgent_RestaurantMemory-GaEJC2EatS",
+            "memoryArn": "arn:aws:bedrock-agentcore:us-east-1:562976154517:memory/RestaurantAgent_RestaurantMemory-GaEJC2EatS"
+          }
+        },
         "stackName": "AgentCore-RestaurantAgent-default",
-        "deployHash": "bfab22a72327ecf5"
+        "deployHash": "1499c52f8c97ad22"
       }
     }
   }

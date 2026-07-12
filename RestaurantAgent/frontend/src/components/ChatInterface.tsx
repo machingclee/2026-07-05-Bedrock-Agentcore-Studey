@@ -32,10 +32,10 @@ function sanitizeChunk(text: string): string {
     .replace(/function_calls\{[^}]*\}/g, '');
 }
 
-// Stable thread ID for the conversation
-const THREAD_ID = generateId();
-
 export default function ChatInterface() {
+  // New UUID thread_id on every page refresh
+  const threadIdRef = useRef(crypto.randomUUID());
+
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'welcome',
@@ -106,31 +106,32 @@ export default function ChatInterface() {
         throw new Error('Agent endpoint not configured. Set VITE_AGENT_ENDPOINT in .env');
       }
 
-      // Build the full conversation history to send to the agent.
-      // The agent needs ALL prior messages to maintain conversation context/memory.
-      const conversationMessages = messages
-        .filter((m) => m.id !== 'welcome') // skip the welcome placeholder
-        .map((m) => ({
-          id: m.id,
-          role: m.role,
-          content: m.content,
-        }));
+      // Decode the JWT payload to extract the user identity.
+      // The token is base64url-encoded JSON; the payload is the second segment.
+      let userId = 'anonymous';
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        userId = payload.sub || payload.username || payload['cognito:username'] || 'anonymous';
+      } catch {
+        // If decoding fails, fall back to anonymous.
+      }
 
-      // Append the new user message
-      conversationMessages.push({
-        id: msgId,
-        role: 'user' as const,
-        content: trimmed,
-      });
-
+      // Only send the new message — the backend session manager
+      // stores and retrieves prior messages keyed by threadId.
       const requestBody = {
-        threadId: THREAD_ID,
+        threadId: threadIdRef.current,
         runId,
-        messages: conversationMessages,
+        messages: [
+          {
+            id: msgId,
+            role: 'user' as const,
+            content: trimmed,
+          },
+        ],
         state: agentState,
         tools: [],
         context: [],
-        forwardedProps: {},
+        forwardedProps: { userId },
       };
 
       const response = await fetch(AGENT_ENDPOINT, {
@@ -345,7 +346,7 @@ export default function ChatInterface() {
       setIsLoading(false);
       inputRef.current?.focus();
     }
-  }, [input, isLoading, messages, agentState]);
+  }, [input, isLoading, agentState]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {

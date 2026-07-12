@@ -38,10 +38,10 @@ async function main() {
   // Gateway fields are stored in agentcore.json but may not yet be on the
   const mcpSpec = specAny.agentCoreGateways?.length
     ? {
-        agentCoreGateways: specAny.agentCoreGateways,
-        mcpRuntimeTools: specAny.mcpRuntimeTools,
-        unassignedTargets: specAny.unassignedTargets,
-      }
+      agentCoreGateways: specAny.agentCoreGateways,
+      mcpRuntimeTools: specAny.mcpRuntimeTools,
+      unassignedTargets: specAny.unassignedTargets,
+    }
     : undefined;
 
   // Read deployed state for credential ARNs (populated by pre-deploy identity setup)
@@ -131,42 +131,52 @@ async function main() {
 
     const paymentSpec = specAny.payments?.length
       ? specAny.payments.map(
-          (p: {
-            name: string;
-            description?: string;
-            authorizerType: 'AWS_IAM' | 'CUSTOM_JWT';
-            authorizerConfiguration?: unknown;
-            autoPayment?: boolean;
-            paymentToolAllowlist?: string[];
-            networkPreferences?: string[];
-            connectors: { name: string; provider?: string; credentialName: string }[];
-          }) => ({
-            name: p.name,
-            description: p.description,
-            authorizerType: p.authorizerType,
-            authorizerConfiguration: p.authorizerConfiguration,
-            autoPayment: p.autoPayment,
-            paymentToolAllowlist: p.paymentToolAllowlist,
-            networkPreferences: p.networkPreferences,
-            connectors: p.connectors.map(c => {
-              const credentialProviderArn = paymentCredentials?.[c.credentialName]?.credentialProviderArn;
-              if (!credentialProviderArn) {
-                // Fail fast with an actionable message rather than passing an empty
-                // ARN that fails opaquely server-side at CreatePaymentConnector.
-                throw new Error(
-                  `Payment connector "${c.name}" on manager "${p.name}" references credential ` +
-                    `"${c.credentialName}", but no deployed credential provider was found for it. ` +
-                    `Run \`agentcore deploy\` so the credential provider is created first.`
-                );
-              }
-              return { name: c.name, provider: c.provider, credentialProviderArn };
-            }),
-          })
-        )
+        (p: {
+          name: string;
+          description?: string;
+          authorizerType: 'AWS_IAM' | 'CUSTOM_JWT';
+          authorizerConfiguration?: unknown;
+          autoPayment?: boolean;
+          paymentToolAllowlist?: string[];
+          networkPreferences?: string[];
+          connectors: { name: string; provider?: string; credentialName: string }[];
+        }) => ({
+          name: p.name,
+          description: p.description,
+          authorizerType: p.authorizerType,
+          authorizerConfiguration: p.authorizerConfiguration,
+          autoPayment: p.autoPayment,
+          paymentToolAllowlist: p.paymentToolAllowlist,
+          networkPreferences: p.networkPreferences,
+          connectors: p.connectors.map(c => {
+            const credentialProviderArn = paymentCredentials?.[c.credentialName]?.credentialProviderArn;
+            if (!credentialProviderArn) {
+              // Fail fast with an actionable message rather than passing an empty
+              // ARN that fails opaquely server-side at CreatePaymentConnector.
+              throw new Error(
+                `Payment connector "${c.name}" on manager "${p.name}" references credential ` +
+                `"${c.credentialName}", but no deployed credential provider was found for it. ` +
+                `Run \`agentcore deploy\` so the credential provider is created first.`
+              );
+            }
+            return { name: c.name, provider: c.provider, credentialProviderArn };
+          }),
+        })
+      )
       : undefined;
 
+
+    const runtimesWithLifecycle = specAny.runtimes.map((rt: any) => ({
+      ...rt,
+      lifecycleConfiguration: {
+        idleRuntimeSessionTimeout: 300,  // 5 minutes
+        maxLifetime: 14400,              // 4 hours
+      },
+    }));
+    const patchedSpec = { ...specAny, runtimes: runtimesWithLifecycle };
+
     new AgentCoreStack(app, stackName, {
-      spec,
+      spec: patchedSpec,
       mcpSpec,
       credentials,
       connectorParametersByFile,
